@@ -122,6 +122,7 @@ void setup() {
   delay(1500);  // Esta espera es preventiva, espera a la conexión para no perder información
 
   // Initialize sensor
+  Wire.begin (14,15);
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
   {
     Serial.println(F("MAX30105 was not found. Please check wiring/power."));
