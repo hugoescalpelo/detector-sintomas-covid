@@ -1,4 +1,4 @@
-# Instrucciones para configurar la bse de datos
+# Instrucciones para configurar la base de datos
 
 1. Instalar mysql server
     - sudo apt update
