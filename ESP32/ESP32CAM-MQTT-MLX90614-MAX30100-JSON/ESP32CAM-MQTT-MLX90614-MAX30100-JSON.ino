@@ -20,6 +20,12 @@
  * SDA----------14
  * SCL----------15
  * 
+ * MLX90614     ESP32CAM
+ * 5v-----------5V
+ * GND----------GND
+ * SDA----------14
+ * SCL----------15
+ * 
  */
 
 //Bibliotecas
@@ -28,6 +34,7 @@
 #include <Wire.h> // Biblioteca para comunicación I2C
 #include "MAX30105.h" // Biblioteca del sensor 
 #include "spo2_algorithm.h" // Biblioteca para interpretación de señales
+#include <Adafruit_MLX90614.h> // Biblioteca para el sensor de temperatura infrarrojo
 
 //Datos de WiFi
 const char* ssid = "AXTEL XTREMO-18D6";  // Aquí debes poner el nombre de tu red
@@ -41,15 +48,17 @@ IPAddress server(192,168,15,27);
 WiFiClient espClient; // Este objeto maneja los datos de conexion WiFi
 PubSubClient client(espClient); // Este objeto maneja los datos de conexion al broker
 MAX30105 particleSensor; // Objeto para manejar el sensor MAX301000
+Adafruit_MLX90614 mlx = Adafruit_MLX90614(); // Objeto para manejar el MLX90614
 
 #define MAX_BRIGHTNESS 255 // Constante de brillo para el MAX30105
 
 // Variables
 int ledPin = 33;  // Para indicar el estatus de conexión
 int ledPin2 = 4; // Para mostrar mensajes recibidos
-long timeNow, timeLastMQTT, timeLastMax30100; // Variables de control de tiempo no bloqueante
+long timeNow, timeLastMQTT, timeLastMax30100, timeLastMLX; // Variables de control de tiempo no bloqueante
 int wait = 5000;  // Indica la espera cada 5 segundos para envío de mensajes MQTT
 int waitMax30100 = 4000; // Espera para lectua del sensor MAX30100
+int waitMLX = 500; // Espera para lectura del sensor MLX90614
 
 
 #define MAX_BRIGHTNESS 255 // Constante de brillo para el MAX30105
@@ -73,6 +82,8 @@ int8_t validHeartRate; //indicator to show if the heart rate calculation is vali
 
 //byte pulseLED = 16; //Must be on PWM pin
 //byte readLED = 2; //Blinks with each data 
+
+int tir; 
 
 // Inicialización del programa
 void setup() {
@@ -123,7 +134,7 @@ void setup() {
 
   // Initialize sensor
   Wire.begin (14,15);
-  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
+  if (!particleSensor.begin(Wire)) //Use default I2C port, 400kHz speed // , I2C_SPEED_FAST
   {
     Serial.println(F("MAX30105 was not found. Please check wiring/power."));
     while (1);
@@ -144,9 +155,21 @@ void setup() {
   particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); //Configure sensor with these settings
 
   max30100First (); // Esta funcion realiza las primears 100 lecturas
+
+  Serial.println("Adafruit MLX90614 test");
+
   
+  if (!mlx.begin(0x5A, &Wire)) { //, I2C_SPEED_FAST
+    Serial.println("Error connecting to MLX sensor. Check wiring.");
+    while (1);
+  };
+
+  Serial.print("Emissivity = "); Serial.println(mlx.readEmissivity());
+  Serial.println("================================================");
+  delay (500);
   timeLastMQTT = millis (); // Inicia el control de tiempo de envio mqtt
   timeLastMax30100 = millis (); // Inicia el control de tiempo del sensor
+  timeLastMLX = millis (); // Inicia el control de tiempo del sensor MLX90614
 
   
 }// fin del void setup ()
@@ -186,30 +209,37 @@ void loop() {
 
       //send samples and calculation result to terminal program through UART
 
-      Serial.print(F("HR="));
-      Serial.print(heartRate, DEC);
+      //Serial.print(F("HR="));
+      //Serial.print(heartRate, DEC);
 
-      Serial.print(F(", HRvalid="));
-      Serial.print(validHeartRate, DEC);
+      //Serial.print(F(", HRvalid="));
+      //Serial.print(validHeartRate, DEC);
 
-      Serial.print(F(", SPO2="));
-      Serial.print(spo2, DEC);
+      //Serial.print(F(", SPO2="));
+      //Serial.print(spo2, DEC);
 
-      Serial.print(F(", SPO2Valid="));
-      Serial.println(validSPO2, DEC);
+      //Serial.print(F(", SPO2Valid="));
+      //Serial.println(validSPO2, DEC);
     }
 
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
     
   }
-  
+
+  if (timeNow - timeLastMLX > waitMLX) {
+    timeLastMLX = timeNow; // Actualización de seguimiento de tiempo
+
+    tir = mlx.readObjectTempC();
+    Serial.print("Ambient = "); Serial.print(mlx.readAmbientTempC());    
+    Serial.print("*C\tObject = "); Serial.print(tir); Serial.println("*C");
+  }
   
   if (timeNow - timeLastMQTT > wait) { // Manda un mensaje por MQTT cada cinco segundos
     timeLastMQTT = timeNow; // Actualización de seguimiento de tiempo
 
     //Se construye el string correspondiente al JSON que contiene 3 variables
-    String json = "{\"hr\"=" + String (heartRate) + ",\"hrv\":" + String (validHeartRate) + ",\"spo2\":" + String (spo2) + ",\"spo2v\":"+ String (validSPO2) + "}";
+    String json = "{\"hr\":" + String (heartRate) + ",\"hrv\":" + String (validHeartRate) + ",\"spo2\":" + String (spo2) + ",\"spo2v\":"+ String (validSPO2) + ",\"tir\":"+ String(tir) + "}";
     Serial.println(json); // Se imprime en monitor solo para poder visualizar que el string esta correctamente creado
     int str_len = json.length() + 1;//Se calcula la longitud del string
     char char_array[str_len];//Se crea un arreglo de caracteres de dicha longitud
