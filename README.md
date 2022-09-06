@@ -11,6 +11,8 @@ Este ejercicio consiste en realizar una detector de sintomas COVID.
 - Se cuenta con un Flow en NodeRed que obtiene la información del micro controlador por MQTT y muestra sus valores en un dashboard
 - El dashboard del Flow incluye una sección para que el paciente ponga sus nombre y correo
 - El dashboard cuenta con un boton que toma captura de los datos y realiza un proto diagnostico
+- El flow envía un correo al paciente desde la cuenta configurada
+- El flow mensiona con una voz sintetica el protodiagnostico
 
 #### Importante:
 
@@ -83,27 +85,39 @@ Para poder configurar tu entorno y realizar este ejercicio, encesitas lo siguien
     - Tiempo de espera entre envío de datos en milisegundos
 2. Arrancar NodeRed y cargar el Flow. Deberás modificar lo siquiente:
     - Temas MQTT a reportar. Deberás ajustarlos de acuerdo a tus fines
-    - Coordenadas. Deberás actualizar las coordenadas geográficas usadas para hacer la petición por API a OpenWheatherMap
-    - API Key. Deberás generar tus propias API Keys para hacer uso del servicio de OpenWeatherMap
-    - Temperatura umbral para envíar señal de encendido del LED Flash para indicar sobre temperatura
+    - Servidor de correo, nombre de usuario y contraseña de la cuenta desde la que se enviará el correo
+    - Idioma de la voz sintética
+    - Realizar una lectura de prueba para cambiar el nivel de bias de la lectura de temperatura del sensor MLX90614
 3. Energiza el circuito. Asegurate de energizar el circuito realizado y de que este se encuentre en rango de la red de WiFi seleccionada
 
 ### Instrucciones de operación
 
-Para observar el funcionamiento de este ejercicio, es necesario que abras el dashboard. Generalmente puedes encontrarlo en http://localhost:1880/ui desde la computadora que ejecuta NodeRed.
+Para observar el funcionamiento de este proyecto, deberás realizar lo siguiente:
+- Abrir el Dashboard: generalmente puedes encontrarlo en http://localhost:1880/ui desde la computadora que ejecuta NodeRed.
+- Introducir nombre y correo del paciente
+- Colocar un dedo sobre el sensor MAX30100 y MLX90614
+- Esperar a que se estabilice la lectura del sensor, aproximadamente despupes de 30 segundos
+- Presionar el boton "Realizar diagnostico"
 
 ## Resultado
 
-A continuación puedes observar una vista previa del resultado de este ejercicio. La captura de pantalla presente fue tomada durante el [Diplomado Internet de las Cosas](https://www.codigoiot.com/curso/seminario-iot-de-samsung-innovation-campus/) de [CódigoIoT](https://www.codigoiot.com), motivo por el cual se pueden ver múltiples gráficas de múltples alumnos reportandose.
+A continuación puedes ver una captura de pantalla de los nodos del flow.
+![](https://github.com/hugoescalpelo/detector-sintomas-covid/blob/main/Imagenes/Nodos.png?raw=true)
 
-![Vista previa](https://github.com/hugoescalpelo/esp32cam-dht11-g7/blob/main/Dashboard%20estacion%20climatica%20API%20y%20Sensores.png?raw=true)
+A continuación puedes observar una vista previa del resultado de este proyecto. La captura de pantalla presente fue tomada durante el [Diplomado Internet de las Cosas](https://www.codigoiot.com/curso/seminario-iot-de-samsung-innovation-campus/) de [CódigoIoT](https://www.codigoiot.com).
+
+![Vista previa](https://github.com/hugoescalpelo/detector-sintomas-covid/blob/main/Imagenes/Dashboard.png?raw=true)
+
+A continuación puedes ver una captura de pantalla del correo recibido
+![](https://github.com/hugoescalpelo/detector-sintomas-covid/blob/main/Imagenes/Protodiagnostico.png?raw=truehttps://github.com/hugoescalpelo/detector-sintomas-covid/blob/main/Imagenes/Protodiagnostico.png?raw=true)
+
 
 # Evidencias
 A continuación puedes ver enlaces a las evidencias de este proyecto
 
-- [Repositorio](https://github.com/hugoescalpelo/esp32cam-dht11-g7)
-- [Youtube](https://youtu.be/q8GJ5GMVQMY)
-- [TikTok](https://www.tiktok.com/@hugoescalpelo/video/7135200073343896837)
+- [Repositorio](https://github.com/hugoescalpelo/detector-sintomas-covid)
+- [Youtube]()
+- [TikTok]()
 
 
 
@@ -115,10 +129,11 @@ A continuación puedes ver enlaces a las evidencias de este proyecto
     **R:** Asegurate que el micro controlador se encuentra en el rango de alcance de tu red WiFi
 - **P: ¿Que significa el error BrownOut?**
     **R:** Significa que tu micro controlador tiene sobre carga de ruido o le falta potencia de alimentación. Intenta moverlo un poco o conectarlo en un puerto USB3.0 diferente
-- **P: ¿Porqué no puedo ver la información en las gráficas del Dashboard?**
+- **P: ¿Porqué no puedo ver la información de los sensores en el Dashboard?**
     **R:** Verifica que hayas escrito los mismos temas en los suscriptores y en los publicadores tanto de flow como del programa del ESP32CAM
     **R:** Asegurate de tener una regla que permita conexiones en el puerto 1883 y tener correctamente configurado el archivo mosquitto.conf
     **R:** Asegurate de buscar la IP mas reciente del broker publico, esta es dinámica y cambia seguido
+    **R:** Asegurate de que tu micro controlador está conectado a WiFi y espera a que pasen alrededor de 30 segundos para que el sensor MAX30100 realice las primeras 100 lecturas
 
 # Compatibilidad
 
@@ -132,6 +147,8 @@ Con modificaciones menores, puede ser compatible con:
     - ESP8266 (probado)
     - ESP32-S (probado)
 - Sensor DHT22 (pendiente)
+- Sensor MAX30102 (pendiente)
+- Sensor MAX30105 (pendiente)
 
 Con modificaciones mayores, puede ser compatible con:
 - Micro controladores Arduino
