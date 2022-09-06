@@ -116,17 +116,20 @@ A continuación puedes ver una captura de pantalla del correo recibido
 A continuación puedes ver enlaces a las evidencias de este proyecto
 
 - [Repositorio](https://github.com/hugoescalpelo/detector-sintomas-covid)
-- [Youtube]()
-- [TikTok]()
+- [Youtube](https://youtu.be/FwRNyl3ry3Q)
+- [TikTok](https://vm.tiktok.com/ZMNwTsGE4/)
 
-Hashtagas recomendados
  #codigoiot
  #iot
  #internetdelascosas
+ #internetofthings
  #nodered
  #dashboard
  #esp32
  #esp32cam
+ #arduino
+ #mqtt
+ #wifi
  #max30100
  #mlx90614
  #diagnostico
