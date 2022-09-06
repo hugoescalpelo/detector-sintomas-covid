@@ -119,6 +119,21 @@ A continuación puedes ver enlaces a las evidencias de este proyecto
 - [Youtube]()
 - [TikTok]()
 
+Hashtagas recomendados
+ #codigoiot
+ #iot
+ #internetdelascosas
+ #nodered
+ #dashboard
+ #esp32
+ #esp32cam
+ #max30100
+ #mlx90614
+ #diagnostico
+ #proyecto
+ #tutorial
+ #detectordesintomas
+ #SamsungInnovationCampus
 
 
 # FAQ
